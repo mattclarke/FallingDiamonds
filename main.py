@@ -70,14 +70,29 @@ class Solver:
         return left_col, right_col
 
     def shift_diamond_left(self, left_col, right_col):
-        # Should throw if cannot shift further left?
-        pass
+        # Should throw if cannot shift further left
+        if False not in left_col:
+            raise Exception("Left column full")
+        # Should throw if right column empty
+        if True not in right_col:
+            raise Exception("Right column full")
 
-    def calculate_probability(self):
-        h = self.get_max_edge_height(self.num)
-        left_col = [False] * h
-        right_col = [False] * h
-        free = self.get_number_free()
+        # Add to left
+        left_col[left_col.index(False)] = True
+        # Remove from right
+        for i, v in enumerate(reversed(right_col)):
+            if v:
+                right_col[i - 1] = False
+                break
+
+        return left_col, right_col
+
+    def is_occupied(self, right, index):
+        return right[index]
+
+    def calculate_probability(self, results):
+        hits = sum(1 for x in results if x is True)
+        return hits / len(results)
 
     def get_number_free(self):
         h = self.calculate_height(self.num)
@@ -88,4 +103,23 @@ class Solver:
         x = abs(x)
         if self.calculate_height(self.num) < y:
             return 0.0
-        return 1.0
+
+        if x == 0 and y == 0 and self.num > 0:
+            return 1.0
+
+        h = self.get_max_edge_height(self.num)
+        left_col = [False] * h
+        right_col = [False] * h
+        free = self.get_number_free()
+        left_col, right_col = self.populate_columns(left_col, right_col, free)
+        hits = []
+
+        while True:
+            hits.append(self.is_occupied(right_col, y))
+            try:
+                left_col, right_col = self.shift_diamond_left(left_col, right_col)
+            except:
+                # No more shifts
+                break
+
+        return self.calculate_probability(hits)
