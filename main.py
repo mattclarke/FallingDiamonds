@@ -1,5 +1,6 @@
 # https://code.google.com/codejam/contest/2434486/dashboard#s=p1
 from collections import OrderedDict
+from math import factorial, pow
 
 SMALL_N = 20
 BIG_N = 1000000
@@ -64,35 +65,25 @@ class Solver:
                 # Fill the first unfilled space
                 col[col.index(False)] = True
                 num_free -= 1
-        # Fill the right-hand column first
-        num_free = _fill_column(right_col, num_free)
-        _fill_column(left_col, num_free)
+        # Fill the left-hand column first
+        num_free = _fill_column(left_col, num_free)
+        _fill_column(right_col, num_free)
         return left_col, right_col
 
-    def shift_diamond_left(self, left_col, right_col):
-        # Should throw if cannot shift further left
-        if False not in left_col:
-            raise Exception("Left column full")
-        # Should throw if right column empty
-        if True not in right_col:
-            raise Exception("Right column full")
-
-        # Add to left
-        left_col[left_col.index(False)] = True
-        # Remove from right
-        for i, v in enumerate(reversed(right_col)):
-            if v:
-                right_col[i - 1] = False
-                break
-
-        return left_col, right_col
-
-    def is_occupied(self, right, index):
+    def is_certain(self, right, index):
         return right[index]
 
-    def calculate_probability(self, results):
-        hits = sum(1 for x in results if x is True)
-        return hits / len(results)
+    def calculate_probability(self, index, num):
+        # Index is effectively how many heads we want - 1
+        # num is effectively the number of coin tosses
+        # Number of permutations giving by binomial
+        index += 1
+        total = 0
+        while index <= num:
+            perms = factorial(num)/(factorial(index)*factorial(num - index))
+            total += perms / pow(2, num)
+            index += 1
+        return total
 
     def get_number_free(self):
         h = self.calculate_height(self.num)
@@ -114,12 +105,6 @@ class Solver:
         left_col, right_col = self.populate_columns(left_col, right_col, free)
         hits = []
 
-        while True:
-            hits.append(self.is_occupied(right_col, y))
-            try:
-                left_col, right_col = self.shift_diamond_left(left_col, right_col)
-            except:
-                # No more shifts
-                break
-
-        return self.calculate_probability(hits)
+        # Fix from here
+        # Check to see if with left full the selected index is occipied
+        # This means 1.0

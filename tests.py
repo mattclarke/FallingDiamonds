@@ -94,47 +94,38 @@ class FallingDiamondsTest(unittest.TestCase):
         self.assertEqual([True, True, True, True], l)
         self.assertEqual([True, True, True, True], r)
 
-    def test_populate_columns_for_height_four_and_six_diamonds_fills_right_and_half_left(self):
+    def test_populate_columns_for_height_four_and_six_diamonds_fills_left_and_half_right(self):
         s = Solver(14)
         l, r = s.create_columns()
         l, r = s.populate_columns(l, r, 6)
-        self.assertEqual([True, True, False, False], l)
-        self.assertEqual([True, True, True, True], r)
-
-    def test_shifting_left_throws_when_left_full(self):
-        s = Solver(14)
-        l = [True, True, True, True]
-        r = [False, False, False, False]
-        self.assertRaises(Exception, s.shift_diamond_left, l, r)
-
-    def test_shifting_left_throws_when_right_empty(self):
-        s = Solver(14)
-        l = [True, True, True, False]
-        r = [False, False, False, False]
-        self.assertRaises(Exception, s.shift_diamond_left, l, r)
-
-    def test_shifting_left_for_height_four_and_five_diamonds_fills_left_and_leaves_one_right(self):
-        s = Solver(14)
-        l = [True, True, True, False]
-        r = [True, True, False, False]
-        l, r = s.shift_diamond_left(l, r)
         self.assertEqual([True, True, True, True], l)
-        self.assertEqual([True, False, False, False], r)
+        self.assertEqual([True, True, False, False], r)
 
-    def test_when_right_column_two_occupied_then_hit_on_two(self):
+    def test_is_certain_when_right_column_contains_two_and_index_is_one(self):
         s = Solver(14)
-        r = [True, True, True, False]
-        self.assertEqual(True, s.is_occupied(r, 2))
+        l, r = s.create_columns()
+        l, r = s.populate_columns(l, r, 6)
+        self.assertEqual(True, s.is_certain(r, 1))
 
-    def test_when_right_column_two_unoccupied_then_no_hit_on_two(self):
+    def test_when_one_diamond_index_zeros_probability_is_50(self):
         s = Solver(14)
-        r = [True, True, False, False]
-        self.assertEqual(False, s.is_occupied(r, 2))
+        self.assertEqual(0.5, s.calculate_probability(0, 1))
 
-    def test_when_two_hits_and_one_miss_probability_is_two_thirds(self):
+    def test_when_two_diamonds_index_zeros_probability_is_75(self):
         s = Solver(14)
-        results = [True, True, False]
-        self.assertEqual(2/3, s.calculate_probability(results))
+        self.assertEqual(0.75, s.calculate_probability(0, 2))
+
+    def test_when_three_diamonds_index_zeros_probability_is_875(self):
+        s = Solver(14)
+        self.assertEqual(0.875, s.calculate_probability(0, 3))
+
+    def test_when_one_diamond_index_ones_probability_is_0(self):
+        s = Solver(14)
+        self.assertEqual(0.0, s.calculate_probability(1, 1))
+
+    def test_when_two_diamonds_index_ones_probability_is_25(self):
+        s = Solver(14)
+        self.assertEqual(0.25, s.calculate_probability(1, 2))
 
     def test_when_two_hits_and_two_misses_probability_is_half(self):
         s = Solver(14)
