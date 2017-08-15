@@ -139,6 +139,25 @@ class FallingDiamondsTest(unittest.TestCase):
         s = Solver(4)
         self.assertEqual(0.5, s.get_probability(1, 1))
 
-    def test_four_diamonds_hits_one_two_half_never(self):
+    def test_four_diamonds_hits_one_two_never(self):
         s = Solver(4)
         self.assertEqual(0, s.get_probability(0, 2))
+
+    def test_if_in_previous_triangle_then_true(self):
+        s = Solver(7)
+        self.assertEqual(True, s.inside_triangle(4, 0, 2))
+        self.assertEqual(True, s.inside_triangle(4, 0, 4))
+        self.assertEqual(True, s.inside_triangle(4, 1, 3))
+        self.assertEqual(True, s.inside_triangle(4, 2, 2))
+        self.assertEqual(True, s.inside_triangle(4, 3, 1))
+
+    def test_if_not_in_previous_triangle_then_false(self):
+        s = Solver(7)
+        self.assertEqual(False, s.inside_triangle(4, 0, 6))
+        self.assertEqual(False, s.inside_triangle(4, 1, 5))
+        self.assertEqual(False, s.inside_triangle(4, 2, 4))
+        self.assertEqual(False, s.inside_triangle(4, 3, 3))
+
+    def test_six_diamonds_hits_zero_two_always(self):
+        s = Solver(6)
+        self.assertEqual(1.0, s.get_probability(0, 2))

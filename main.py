@@ -25,7 +25,7 @@ def calculate_triangles_up_to_n(n):
         h += 2
     return triangles
 
-TRIANGLES = calculate_triangles_up_to_n(SMALL_N)
+TRIANGLES = calculate_triangles_up_to_n(BIG_N)
 
 
 class Solver:
@@ -88,18 +88,31 @@ class Solver:
         p, __ = self.calculate_height(self.num)
         return self.num - TRIANGLES[p]
 
+    def inside_triangle(self, h, x, y):
+        # Can treat triangle as right-angle by ignoring left side
+        if x + y <= h:
+            return True
+        return False
+
     def get_probability(self, x, y):
         # Due to symmetry can ignore sign
         x = abs(x)
 
         # Look for some early outs
-        p, h = self.calculate_height(self.num)
+        if x == 0 and y == 0 and self.num > 0:
+            return 1.0
 
+        p, h = self.calculate_height(self.num)
         if y >= h:
             return 0.0
 
-        if x == 0 and y == 0 and self.num > 0:
+        # If position inside previous triangle then it is a hit
+        if self.inside_triangle(p, x, y):
             return 1.0
+
+        # If cannot be in next triangle then it is a miss
+        if not self.inside_triangle(h, x, y):
+            return 0.0
 
         h = self.get_max_edge_height(self.num)
         left_col = [False] * h
@@ -115,3 +128,17 @@ class Solver:
 
         # Calculate probability
         return self.calculate_probability(y, free)
+
+
+if __name__ == "__main__":
+    f = open("B-large-practice.in", "r")
+    input_data = f.read().strip()
+    f.close()
+
+    lines = input_data.split('\n')
+
+    for i, line in enumerate(lines):
+        s = line.split(' ')
+        solver = Solver(int(s[0]))
+        ans = solver.get_probability(int(s[1]), int(s[2]))
+        print("Case #{0}: {1}".format(i + 1, ans))
