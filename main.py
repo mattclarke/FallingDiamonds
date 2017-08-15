@@ -32,42 +32,29 @@ class Solver:
     def __init__(self, num):
         self.num = num
 
-    def calculate_height(self, num):
+    def calculate_height(self):
         prev = 0
         for h, n in TRIANGLES.items():
-            if n > num:
+            if n > self.num:
                 return prev, h
             prev = h
 
-    def get_max_edge_height(self, num):
+    def get_max_edge_height(self):
         # Edge height is the same as the central height
         # for the next biggest triangle
         # because we don't include the tip diamond as part of the edge
         for h, n in TRIANGLES.items():
-            if n > num:
+            if n > self.num:
                 return h
 
-    def create_columns(self):
-        h = self.get_max_edge_height(self.num)
-        left_col = [False] * h
-        right_col = [False] * h
-        return left_col, right_col
-
-    def populate_columns(self, left_col, right_col, num_free):
-        def _fill_column(col, num_free):
-            while True:
-                if num_free == 0:
-                    return 0
-                if col[-1]:
-                    # All of the column is full
-                    return num_free
-                # Fill the first unfilled space
-                col[col.index(False)] = True
-                num_free -= 1
-        # Fill the left-hand column first
-        num_free = _fill_column(left_col, num_free)
-        _fill_column(right_col, num_free)
-        return left_col, right_col
+    def populate_right_column(self, height, num_free):
+        num_right = int(num_free - height)
+        right_col = [False] * height
+        if num_right <= 0:
+            return right_col
+        for i in range(num_right):
+            right_col[i] = True
+        return right_col
 
     def is_certain(self, right, index):
         return right[index]
@@ -78,6 +65,7 @@ class Solver:
         # Number of permutations giving by binomial
         index += 1
         total = 0
+        # Scipy's binom would make this simpler
         while index <= num:
             perms = factorial(num)/(factorial(index)*factorial(num - index))
             total += perms / pow(2, num)
@@ -85,7 +73,7 @@ class Solver:
         return total
 
     def get_number_free(self):
-        p, __ = self.calculate_height(self.num)
+        p, __ = self.calculate_height()
         return self.num - TRIANGLES[p]
 
     def inside_triangle(self, h, x, y):
@@ -102,7 +90,7 @@ class Solver:
         if x == 0 and y == 0 and self.num > 0:
             return 1.0
 
-        p, h = self.calculate_height(self.num)
+        p, h = self.calculate_height()
         if y >= h:
             return 0.0
 
@@ -114,12 +102,9 @@ class Solver:
         if not self.inside_triangle(h, x, y):
             return 0.0
 
-        h = self.get_max_edge_height(self.num)
-        left_col = [False] * h
-        right_col = [False] * h
+        h = self.get_max_edge_height()
         free = self.get_number_free()
-        left_col, right_col = self.populate_columns(left_col, right_col, free)
-        hits = []
+        right_col = self.populate_right_column(h, free)
 
         # Check to see if with left full the selected index is occupied
         # This means 1.0

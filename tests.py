@@ -21,23 +21,23 @@ class FallingDiamondsTest(unittest.TestCase):
 
     def test_calculate_height_for_one_diamond_is_zero(self):
         s = Solver(1)
-        self.assertEqual(0, s.calculate_height(1)[0])
+        self.assertEqual(0, s.calculate_height()[0])
 
     def test_calculate_height_for_five_diamonds_is_zero(self):
-        s = Solver(1)
-        self.assertEqual(0, s.calculate_height(5)[0])
+        s = Solver(5)
+        self.assertEqual(0, s.calculate_height()[0])
 
     def test_calculate_height_for_six_diamonds_is_two(self):
-        s = Solver(1)
-        self.assertEqual(2, s.calculate_height(6)[0])
+        s = Solver(6)
+        self.assertEqual(2, s.calculate_height()[0])
 
     def test_calculate_height_for_fourteen_diamonds_is_two(self):
-        s = Solver(1)
-        self.assertEqual(2, s.calculate_height(14)[0])
+        s = Solver(14)
+        self.assertEqual(2, s.calculate_height()[0])
 
     def test_calculate_height_for_fifteen_diamonds_is_four(self):
-        s = Solver(1)
-        self.assertEqual(4, s.calculate_height(15)[0])
+        s = Solver(15)
+        self.assertEqual(4, s.calculate_height()[0])
 
     def test_one_diamond_misses_zero_two(self):
         s = Solver(1)
@@ -49,15 +49,15 @@ class FallingDiamondsTest(unittest.TestCase):
 
     def test_edge_height_for_seven_to_fourteen_is_four(self):
         s = Solver(7)
-        self.assertEqual(4, s.get_max_edge_height(7))
+        self.assertEqual(4, s.get_max_edge_height())
         s = Solver(14)
-        self.assertEqual(4, s.get_max_edge_height(14))
+        self.assertEqual(4, s.get_max_edge_height())
 
     def test_edge_height_for_sixteen_to_twentyseven_is_six(self):
         s = Solver(16)
-        self.assertEqual(6, s.get_max_edge_height(16))
+        self.assertEqual(6, s.get_max_edge_height())
         s = Solver(27)
-        self.assertEqual(6, s.get_max_edge_height(27))
+        self.assertEqual(6, s.get_max_edge_height())
 
     def test_number_of_free_diamonds_is_correct(self):
         s = Solver(3)
@@ -73,38 +73,19 @@ class FallingDiamondsTest(unittest.TestCase):
         s = Solver(27)
         self.assertEqual(12, s.get_number_free())
 
-    def test_create_columns_for_various_n_gives_correct_length(self):
-        s = Solver(3)
-        ans = s.create_columns()
-        self.assertEqual(2, len(ans[0]))
-        self.assertEqual(2, len(ans[1]))
+    def test_populate_columns_for_height_four_and_eight_diamonds_fills_right(self):
         s = Solver(14)
-        ans = s.create_columns()
-        self.assertEqual(4, len(ans[0]))
-        self.assertEqual(4, len(ans[1]))
-        s = Solver(27)
-        ans = s.create_columns()
-        self.assertEqual(6, len(ans[0]))
-        self.assertEqual(6, len(ans[1]))
-
-    def test_populate_columns_for_height_four_and_eight_diamonds_fills_both(self):
-        s = Solver(14)
-        l, r = s.create_columns()
-        l, r = s.populate_columns(l, r, 8)
-        self.assertEqual([True, True, True, True], l)
+        r = s.populate_right_column(s.calculate_height()[1], 8)
         self.assertEqual([True, True, True, True], r)
 
-    def test_populate_columns_for_height_four_and_six_diamonds_fills_left_and_half_right(self):
-        s = Solver(14)
-        l, r = s.create_columns()
-        l, r = s.populate_columns(l, r, 6)
-        self.assertEqual([True, True, True, True], l)
+    def test_populate_columns_for_height_four_and_six_diamonds_fills_half_right(self):
+        s = Solver(12)
+        r = s.populate_right_column(s.calculate_height()[1], 6)
         self.assertEqual([True, True, False, False], r)
 
     def test_is_certain_when_right_column_contains_two_and_index_is_one(self):
-        s = Solver(14)
-        l, r = s.create_columns()
-        l, r = s.populate_columns(l, r, 6)
+        s = Solver(5)
+        r = s.populate_right_column(s.calculate_height()[1], 4)
         self.assertEqual(True, s.is_certain(r, 1))
 
     def test_when_one_diamond_index_zeros_probability_is_50(self):
