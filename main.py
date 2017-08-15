@@ -34,10 +34,9 @@ class Solver:
 
     def calculate_height(self, num):
         prev = 0
-
         for h, n in TRIANGLES.items():
             if n > num:
-                return prev
+                return prev, h
             prev = h
 
     def get_max_edge_height(self, num):
@@ -86,13 +85,17 @@ class Solver:
         return total
 
     def get_number_free(self):
-        h = self.calculate_height(self.num)
-        return self.num - TRIANGLES[h]
+        p, __ = self.calculate_height(self.num)
+        return self.num - TRIANGLES[p]
 
     def get_probability(self, x, y):
         # Due to symmetry can ignore sign
         x = abs(x)
-        if self.calculate_height(self.num) < y:
+
+        # Look for some early outs
+        p, h = self.calculate_height(self.num)
+
+        if y >= h:
             return 0.0
 
         if x == 0 and y == 0 and self.num > 0:
@@ -105,6 +108,10 @@ class Solver:
         left_col, right_col = self.populate_columns(left_col, right_col, free)
         hits = []
 
-        # Fix from here
-        # Check to see if with left full the selected index is occipied
+        # Check to see if with left full the selected index is occupied
         # This means 1.0
+        if self.is_certain(right_col, y):
+            return 1.0
+
+        # Calculate probability
+        return self.calculate_probability(y, free)
